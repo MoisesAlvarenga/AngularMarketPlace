@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CarrinhoService } from '../carrinho.service';
 import { IProduto } from '../produtos';
 import { ProdutosService } from '../produtos.service';
@@ -13,12 +14,23 @@ export class ProdutosComponent implements OnInit {
   produtos: IProduto[] | undefined;
 
   constructor(
-    private produtoService: ProdutosService
+    private produtoService: ProdutosService,
+    private route: ActivatedRoute
     
   ) { }
 
   ngOnInit(): void {
-    this.produtos = this.produtoService.getAll();
+    const produtos = this.produtoService.getAll();
+    this.route.queryParamMap.subscribe(params => {
+      const descricao = params.get("descricao")?.toLocaleLowerCase();
+      
+      if(descricao){
+        this.produtos = produtos.filter(produto => produto.descricao.toLocaleLowerCase().includes(descricao));
+        return;
+      }
+
+      this.produtos = produtos;
+    });
   }
 
 }
